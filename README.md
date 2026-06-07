@@ -1,87 +1,71 @@
-Meesho Android Application – Sensitive User Data Exposure via Insecure SharedPreferences Storage
-Repository: honestcorrupt/MEESHO-CVE-REQUEST
-Summary
-During dynamic analysis of the Meesho Android Application (com.meesho.supply) using Frida, sensitive user Personally Identifiable Information (PII) including phone number, email address, full name, user ID, and detailed session data was found stored in plaintext inside SharedPreferences.
+# Meesho Android Application – Sensitive User Data Exposure via Insecure SharedPreferences Storage
+
+**Repository:** `honestcorrupt/MEESHO-CVE-REQUEST`
+
+## Summary
+
+During dynamic analysis of the **Meesho Android Application** (`com.meesho.supply`) using Frida, sensitive user Personally Identifiable Information (PII) including phone number, email address, full name, user ID, and detailed session data was found stored in **plaintext** inside SharedPreferences.
+
 The application does not adequately protect sensitive data, making it vulnerable to local extraction by attackers with device access.
-Affected Application
 
+## Affected Application
 
+| Field              | Details                                      |
+|--------------------|----------------------------------------------|
+| Application        | Meesho - Resell & Earn                       |
+| Package Name       | `com.meesho.supply`                          |
+| Platform           | Android                                      |
+| Vulnerability Type | Insecure Storage of Sensitive Information    |
+| Component          | SharedPreferences                            |
+| Affected Keys      | `USER`, `super_properties`, `APP_SESSION_EVENT`, etc. |
 
+## Affected Components
 
+- Plaintext storage of PII in SharedPreferences
+- `USER` key containing phone, email, name, user_id
+- Extensive user profiling and tracking data in `super_properties`
 
+## Security Impact
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-FieldDetailsApplicationMeesho - Resell & EarnPackage Namecom.meesho.supplyPlatformAndroidVulnerability TypeInsecure Storage of Sensitive InformationComponentSharedPreferencesAffected KeysUSER, super_properties, APP_SESSION_EVENT, etc.
-Affected Components
-
-Plaintext storage of PII in SharedPreferences
-USER key containing phone, email, name, user_id
-Extensive user profiling and tracking data in super_properties
-
-Security Impact
 An attacker with physical access to the device can:
 
-Extract full user identity (phone, email, name, user_id)
-Access detailed behavioral and device profiling data
-Retrieve session and authentication-related information
+- Extract full user identity (phone, email, name, user_id)
+- Access detailed behavioral and device profiling data
+- Retrieve session and authentication-related information
 
-Potential consequences:
+**Potential consequences:**
+- Privacy violation and identity theft
+- Targeted phishing or social engineering
+- Account enumeration
 
-Privacy violation and identity theft
-Targeted phishing or social engineering
-Account enumeration
+## Attack Requirements
 
-Attack Requirements
+- Physical access to the target Android device
+- Frida or equivalent dynamic instrumentation tool
 
-Physical access to the target Android device
-Frida or equivalent dynamic instrumentation tool
+## Vulnerability Details
 
-Vulnerability Details
-CWE Classification:
+**CWE Classification:**
+- CWE-312: Cleartext Storage of Sensitive Information
+- CWE-359: Exposure of Private Personal Information
+- CWE-922: Insecure Storage of Sensitive Information
 
-CWE-312: Cleartext Storage of Sensitive Information
-CWE-359: Exposure of Private Personal Information
-CWE-922: Insecure Storage of Sensitive Information
+**CVSS v3.1 Score (Estimated):** 6.2 – 7.1 (Medium-High)  
+**Attack Vector:** Physical  
+**Attack Complexity:** Low  
+**Privileges Required:** None  
+**User Interaction:** None  
+**Scope:** Unchanged  
+**Confidentiality:** High
 
-CVSS v3.1 Score (Estimated): 6.2 – 7.1 (Medium-High)
-Attack Vector: Physical
-Attack Complexity: Low
-Privileges Required: None
-User Interaction: None
-Scope: Unchanged
-Confidentiality: High
-Steps to Reproduce
-Using Frida (Dynamic Analysis)
+## Steps to Reproduce
 
-Save the following script as meeshobug2.js:
+### Using Frida (Dynamic Analysis)
 
-JavaScriptJava.perform(function() {
+1. Save the following script as **`meeshobug2.js`**:
+
+```javascript
+Java.perform(function() {
 
     console.log("╔══════════════════════════════════════╗");
     console.log("║   PII & AUTH TOKEN EXPOSURE TESTER   ║");
@@ -155,51 +139,65 @@ JavaScriptJava.perform(function() {
         console.log("╚══════════════════════════════════════╝");
     }, 30000);
 });
+```
 
-Run Frida with the script:Bashfrida -U -f com.meesho.supply -l meeshobug2.js
-Interact with the app normally (login, browse, view account, etc.).
-Observe real-time logs showing exposed PII and sensitive data.
+2. Run Frida with the script:
+   ```bash
+   frida -U -f com.meesho.supply -l meeshobug2.js
+   ```
 
-Sample Output:
-log[🔴 PII EXPOSED]
+3. Interact with the app normally (login, browse products, view account section, etc.).
+
+4. Observe real-time logs showing exposed PII and sensitive data.
+
+**Sample Output:**
+```log
+[🔴 PII EXPOSED]
 Key   : USER
 Value : {"user_id":149712167,"phone":"+916205695120","email":"soyamarya96@gmail.com","name":"Soyam Arya",...}
 
 [🔴 PII EXPOSED]
 Key   : super_properties
 Value : {"Phone":"+916205695120", ...}
-Root Cause
+```
 
-Sensitive PII and session data stored in plaintext SharedPreferences
-No use of EncryptedSharedPreferences or Android Keystore
-Excessive local persistence of user and analytics data
+## Root Cause
 
-Recommendations
+- Sensitive PII and session data stored in plaintext SharedPreferences
+- No use of `EncryptedSharedPreferences` or Android Keystore
+- Excessive local persistence of user and analytics data
 
-Use EncryptedSharedPreferences with MasterKey.Builder (AES256_GCM).
-Store high-sensitivity data (tokens, PII) in the Android Keystore.
-Minimize storage of unnecessary PII and implement proper data redaction.
-Review and limit what is written to SharedPreferences.
+## Recommendations
 
-Severity Assessment
-Severity: Medium-High (due to direct exposure of PII)
-Disclosure Timeline
+1. Use **EncryptedSharedPreferences** with `MasterKey.Builder` (AES256_GCM).
+2. Store high-sensitivity data (tokens, PII) in the **Android Keystore**.
+3. Minimize storage of unnecessary PII and implement proper data redaction.
+4. Review and limit what is written to SharedPreferences.
 
-June 2026 – Vulnerability discovered during security research
-June 2026 – Reported to Meesho security team
-TBD – Vendor response / patch
-TBD – CVE assigned
-TBD – Public disclosure
+## Severity Assessment
 
-Proof of Concept Media
+**Severity:** Medium-High (due to direct exposure of PII)
 
-Frida script: meeshobug2.js (included above)
-Screenshots and full logs available upon request
+## Disclosure Timeline
 
-Credits
-Researcher: Soyam Arya
-Alias: honest_corrupt
-GitHub: https://github.com/honestcorrupt
+- **June 2026** – Vulnerability discovered during security research
+- **June 2026** – Reported to Meesho security team
+- TBD – Vendor response / patch
+- TBD – CVE assigned
+- TBD – Public disclosure
 
-Disclaimer
+## Proof of Concept Media
+
+- Frida script: `meeshobug2.js` (included above)
+- Screenshots and full logs available upon request
+
+## Credits
+
+**Researcher:** Soyam Arya  
+**Alias:** honest_corrupt  
+**GitHub:** https://github.com/honestcorrupt
+
+---
+
+**Disclaimer**  
 This research was conducted entirely in a controlled testing environment using the researcher’s own account and personal device. No real user data belonging to others was accessed or stored. All testing followed responsible disclosure principles.
