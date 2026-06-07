@@ -1,7 +1,5 @@
 # Meesho Android Application – Sensitive User Data Exposure via Insecure SharedPreferences Storage
 
-**Repository:** `honestcorrupt/MEESHO-CVE-REQUEST`
-
 ## Summary
 
 During dynamic analysis of the **Meesho Android Application** (`com.meesho.supply`) using Frida, sensitive user Personally Identifiable Information (PII) including phone number, email address, full name, user ID, and detailed session data was found stored in **plaintext** inside SharedPreferences.
@@ -160,7 +158,7 @@ Value : {"user_id":149712167,"phone":"+916205695120","email":"soyamarya96@gmail.
 Key   : super_properties
 Value : {"Phone":"+916205695120", ...}
 ```
-
+## Steps to Reproduce IN VIDEO : https://drive.google.com/file/d/1tUOME-DfuTVDnbCxvDPKNAZjrRl0GmJQ/view?usp=sharing
 ## Root Cause
 
 - Sensitive PII and session data stored in plaintext SharedPreferences
